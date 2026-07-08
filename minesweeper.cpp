@@ -2,6 +2,16 @@
 #include <cstdlib>
 #include <ctime>
 using namespace std;
+
+void printpboard(char playboard[5][5]) {
+     for (int i = 0; i < 5; i++) {
+        for (int j = 0; j < 5; j++) {
+            cout << playboard[i][j] << " ";
+        }
+        cout << endl;
+    }
+}
+
 int main() {
     int board[5][5];
 
@@ -87,11 +97,122 @@ for (int r = 0; r < 5; r++) {
     }
 }
 
-    // print
-    for (int i = 0; i < 5; i++) {
+for (int i = 0; i < 5; i++) {
         for (int j = 0; j < 5; j++) {
             cout << board[i][j] << " ";
         }
         cout << endl;
     }
+
+// Creating playable board
+// We create a separate board because the player should not see the hidden board
+// with all mines and numbers. This board stores only what the player has revealed.
+char playboard[5][5];
+
+
+// Initialize playable board
+// At the start, every cell is hidden, so we represent unknown cells with '#'
+for (int i = 0; i < 5; i++) {
+    for (int j = 0; j < 5; j++) {
+        playboard[i][j] = '#';
+    }
+}
+
+
+// This variable controls whether the game is still running
+// It starts as true because the player has not lost yet
+bool game = true;
+int count = 0;
+
+
+// The game continues as long as the player has not hit a mine
+while (game == true) {
+
+
+    // Print current playable board
+    // The player only sees the cells they have revealed so far
+    printpboard(playboard);
+
+
+    // Taking player's chosen cell coordinates
+    // The player selects a row and column to reveal
+    int prow, pcol;
+
+    cout << "Row: ";
+    cin >> prow;
+
+
+    // Validate row input
+    // The board only has indexes 0-4, so anything outside this range is invalid
+    // This prevents accessing memory outside the board
+    if (prow < 0 || prow > 4) {
+        cout << "Invalid Input!" << endl;
+        return 0;
+    }
+
+
+    cout << "Column: ";
+    cin >> pcol;
+
+
+    // Validate column input
+    // Prevents accessing invalid memory locations like board[5][2] or board[-1][3]
+    if (pcol < 0 || pcol > 4) {
+        cout << "Invalid Input!" << endl;
+        return 0;
+    }
+
+
+    // Check if the selected cell has already been revealed
+    // If the cell is not '#', it means the player has already seen its value
+    // so we reject the move and ask for another one
+    if (playboard[prow][pcol] != '#') {
+        cout << "Already Revealed! Invalid Input!" << endl;
+        continue;
+    }
+
+
+    // Check what exists in the hidden board at the chosen location
+    // If the cell contains a number (0-8), reveal that number on the playable board
+    if (board[prow][pcol] >= 0 && board[prow][pcol] <= 8) {
+
+
+        // Convert integer value into a character
+        // Example: 2 becomes '2'
+        // Characters for digits are stored consecutively,
+        // so adding to '0' gives the correct character
+        playboard[prow][pcol] = '0' + board[prow][pcol];
+
+
+        // Print updated playable board after the player's move
+        // Only the selected cell should be revealed
+        printpboard(playboard);
+        count++;
+    }
+
+
+    // If the selected cell contains a mine, reveal the mine symbol
+    // The game will later handle losing here
+    if (board[prow][pcol] == -1) {
+
+        // Show the mine on the player's board
+        playboard[prow][pcol] = '*';
+
+
+        // Print final board showing where the mine was found
+        printpboard(playboard);
+
+
+        // Changing game state to false stops the while loop
+        // and ends the game after the player hits a mine
+        game = false;
+    }
+
+    if (count == 21) {
+        cout << "Congratulations! You Win!" << endl;
+        return 0;
+    }
+
+}
+
 }
