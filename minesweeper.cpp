@@ -3,30 +3,20 @@
 #include <ctime>
 using namespace std;
 
-void printpboard(char playboard[5][5]) {
-     for (int i = 0; i < 5; i++) {
-        for (int j = 0; j < 5; j++) {
-            cout << playboard[i][j] << " ";
-        }
-        cout << endl;
-    }
-}
-
-int main() {
-    int board[5][5];
-
-    // initialize
+void initializeBoard(int board[5][5]) {
     for (int i = 0; i < 5; i++) {
         for (int j = 0; j < 5; j++) {
             board[i][j] = 0;
         }
     }
+}
 
+void placeMines(int board[5][5]) {
     // generating random numbers
     srand(time(0));
     // Seeds the random number generator using current time
     // so that we get different random values every time the program runs
-    for (int count = 0; count < 4; ){ 
+    for (int count = 0; count < 4; ) { 
         int row = rand() % 5;
         // Generates a random number between 0 and 4 
         int col = rand() % 5;
@@ -38,9 +28,17 @@ int main() {
             count++;
         }
     }
+}
 
-    // generating numbers around all mines
-// We go through every cell because every non-mine cell needs to know how many mines are around it
+bool validcell(int row, int col) {
+    if (row >= 0 && row < 5 && col >= 0 && col < 5) {
+        return true;
+    }
+    return false;
+}
+
+void calculateNumbers(int board[5][5]) {
+    // We go through every cell because every non-mine cell needs to know how many mines are around it
 
 int neighbourRow, neighbourCol;
 
@@ -81,7 +79,7 @@ for (int r = 0; r < 5; r++) {
 
                 // Before accessing the neighbor, make sure it exists inside the board
                 // This prevents accessing invalid positions like board[-1][0] or board[5][2]
-                if (neighbourRow >= 0 && neighbourRow < 5 && neighbourCol >= 0 && neighbourCol < 5) {
+                if (validcell(neighbourRow, neighbourCol) == true) {
 
                     // If the neighboring cell contains a mine, increase the count
                     if (board[neighbourRow][neighbourCol] == -1) {
@@ -96,10 +94,36 @@ for (int r = 0; r < 5; r++) {
         board[r][c] = count;
     }
 }
+}
 
+void printpboard(char playboard[5][5]) {
+     for (int i = 0; i < 5; i++) {
+        for (int j = 0; j < 5; j++) {
+            cout << playboard[i][j] << " ";
+        }
+        cout << endl;
+    }
+}
+
+int main() {
+    int board[5][5];
+
+    // initialize
+    initializeBoard(board);
+
+    // generating random mines
+    placeMines(board);
+
+    // generating numbers around all mines
+    calculateNumbers(board);
+
+int safecells = 0;
 for (int i = 0; i < 5; i++) {
         for (int j = 0; j < 5; j++) {
             cout << board[i][j] << " ";
+            if (board[i][j] != -1) {
+                safecells++;
+            }
         }
         cout << endl;
     }
@@ -187,6 +211,7 @@ while (game == true) {
         // Print updated playable board after the player's move
         // Only the selected cell should be revealed
         printpboard(playboard);
+
         count++;
     }
 
@@ -208,7 +233,7 @@ while (game == true) {
         game = false;
     }
 
-    if (count == 21) {
+    if (count == safecells) {
         cout << "Congratulations! You Win!" << endl;
         return 0;
     }
