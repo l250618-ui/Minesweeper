@@ -146,8 +146,17 @@ void calculateNumbers(int board[5][5]) {
 // This board only shows cells the player has revealed
 void printpboard(char playboard[5][5]) {
 
+    cout << "  ";
+
+    for (int i = 0; i < 5; i++) {
+        cout << i << " ";
+    }
+
+    cout << endl;
+
     for (int i = 0; i < 5; i++) {
 
+        cout << i << " ";
 
         for (int j = 0; j < 5; j++) {
 
@@ -215,6 +224,18 @@ void printHiddenBoard(int board[5][5]) {
         }
 
         cout << endl;
+    }
+}
+
+void revealMines(char playerboard[5][5], int board[5][5]) {
+    for (int i = 0; i < 5; i++) {
+
+        for (int j = 0; j < 5; j++) {
+
+            if (board[i][j] == -1) {
+                playerboard[i][j] = '*';
+            }
+        }
     }
 }
 
@@ -303,15 +324,8 @@ void revealCell(char playerboard[5][5], int board[5][5], int row, int col, int &
                 }
             }
         }
-
-
-        // Display updated board after expansion is complete
-        printpboard(playerboard);
     }
 }
-
-
-
 
 
 bool playerMove(char playboard[5][5], int board[5][5], int &revealedcells) {
@@ -356,42 +370,29 @@ bool playerMove(char playboard[5][5], int board[5][5], int &revealedcells) {
 
 
 
-    // Reveal the selected cell
-    // revealCell handles:
-    // - revealing numbers
-    // - expanding zeros
-    // - stopping recursion
-    revealCell(playboard, board, prow, pcol, revealedcells);
-
-
-
-
     // If the selected cell contains a mine,
     // reveal the mine and end the game
     if (board[prow][pcol] == -1) {
 
+        
+        cout << "BOOM!" << endl;
+        cout << "You Lost! Game Over!" << endl;
 
         // Show the mine location
-        playboard[prow][pcol] = '*';
-
-
+        revealMines(playboard, board);
 
         // Print final board
         printpboard(playboard);
 
-
-
         // Returning false stops the game loop
         return false;
     }
-
-
+    
+    else {
+        revealCell(playboard, board, prow, pcol, revealedcells);
+    }
     return true;
 }
-
-
-
-
 
 
 int main() {
@@ -445,8 +446,7 @@ int main() {
     // Keeps track of how many safe cells have been revealed
     int revealedcells = 0;
 
-
-
+    cout << "Welcome To Minesweeper!" << endl;
 
 
     // Continue playing until the player hits a mine
